@@ -62,7 +62,7 @@ class Chessboard:
                 if self.chessboard[x][yStart]!=".":
                     return False
             return True
-        else: # diagonal
+        else: # diagonal (not finished)
             if xStart>xFinish:
                 for diff in range(xStart-xFinish+1):
                     if self.chessboard[x+diff][y+diff]!=".":
@@ -94,7 +94,7 @@ class Chessboard:
         if False in functionAnswers:
             return False
         else:
-            return False
+            return True
     
     def movePiece(self,move):
         self.start,self.finish=move[:2],move[2:]

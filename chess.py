@@ -30,13 +30,13 @@ class Chessboard:
             for y in range(8):
                 square=self.chessboard[x][y]
                 if square!=".":
-                    for move in possibleMoves[square.lower()]:
-                        if moveAllowed(move) and x+move[1]==xStart and y+move[2]==yStart:
+                    for move in self.possibleMoves[square.lower()]:
+                        if self.moveAllowed(move) and x+move[1]==xStart and y+move[2]==yStart:
                             return False
         return True
     
     def notTeammate(self,_,__xFinish,yFinish):
-        square=self.chessboard[x][y]
+        square=self.chessboard[xFinish][yFinish]
         if (square.isupper() and self.turn=="white") or (square.islower() and self.turn=="black"):
             return False
         return True
@@ -70,13 +70,13 @@ class Chessboard:
             return True
     
     
-    def enemyOnly(self,_,__xFinish,yFinish):
+    def enemyOnly(self,_,__,xFinish,yFinish):
         square=self.chessboard[xFinish][yFinish]
         if (square.isupper() and self.turn=="black") or (square.islower() and self.turn=="white"):
             return True
         return False
     
-    def onRow(self,xStart,yStart,_,__nRow):
+    def onRow(self,xStart,yStart,_,__,nRow):
         if xStart==nRow:
             return True
         return False
@@ -122,5 +122,6 @@ class Chessboard:
             self.chessboard[xFinish][yFinish]=piece
             self.chessboard[xStart][yStart]="."
 
+chessboard=Chessboard()
 while True:
     chessboard.movePiece()

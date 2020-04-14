@@ -15,7 +15,7 @@ class Chessboard:
                              "r":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if (x==0 or y==0) and [x,y]!=[0,0]], # castling to implement
                              "b":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if x==y!=0],
                              "k":[["notTeammate",x,y] for [x,y] in [[-2,-1],[-2,1],[-1,2],[1,2],[2,1],[2,-1],[1,-2],[-1,-2]]],
-                             "p":[["notTeammate",-1,0],["noPieceBetween+onRow/2",-2,0],["enemyOnly",-1,-1],["enemyOnly",-1,1]]}
+                             "p":[["notTeammate",-1,0],["noPieceBetween+onRow/2",-2,0],["enemyOnly",-1,-1],["enemyOnly",-1,1]]} # add support for black pawns
     
     
     def chessToList(self,coord):
@@ -32,24 +32,20 @@ class Chessboard:
                 if square!=".":
                     for move in possibleMoves[square.lower()]:
                         if moveAllowed(move) and x+move[1]==xStart and y+move[2]==yStart:
-                            check=True
-                            break
-                    if check: break
-            if check: break
-        return not check
+                            return False
+        return True
     
     def notTeammate(self,_,__xFinish,yFinish):
         square=self.chessboard[x][y]
         if (square.isupper() and self.turn=="white") or (square.islower() and self.turn=="black"):
             return False
-        else:
-            return True
+        return True
     
     def noPieceBetween(self,xStart,yStart,xFinish,yFinish):
         if xStart==xFinish: # horizontal
-            if yStart<yFinish and self.chessboard[xStart][yStart+1:yFinish]==[""]*(yFinish-yStart+1):
+            if yStart<yFinish and self.chessboard[xStart][yStart+1:yFinish]==["."]*(yFinish-yStart+1):
                 return True
-            elif yFinish<yStart and self.chessboard[xStart][yFinish+1:yStart]==[""]*(yStart-yFinish+1):
+            elif yFinish<yStart and self.chessboard[xStart][yFinish+1:yStart]==["."]*(yStart-yFinish+1):
                 return True
             else:
                 return False
@@ -62,45 +58,69 @@ class Chessboard:
                 if self.chessboard[x][yStart]!=".":
                     return False
             return True
-        else: # diagonal (not finished)
+        else: # diagonal
             if xStart>xFinish:
                 for diff in range(xStart-xFinish+1):
-                    if self.chessboard[x+diff][y+diff]!=".":
+                    if self.chessboard[xFinish+diff][yFinish+diff]!=".":
+                        return False
+            else:
+                for diff in range(xFinish-xStart+1):
+                    if self.chessboard[xStart+diff][yStart+diff]!=".":
                         return False
             return True
+    
     
     def enemyOnly(self,_,__xFinish,yFinish):
         square=self.chessboard[xFinish][yFinish]
         if (square.isupper() and self.turn=="black") or (square.islower() and self.turn=="white"):
             return True
-        else:
-            return False
+        return False
     
     def onRow(self,xStart,yStart,_,__nRow):
         if xStart==nRow:
             return True
-        else:
+        return False
+    
+    
+    def moveAllowed(self,xStart,xFinish,yStart,yFinish,piece):
+        for square in [xStart,xFinish,yStart,yFinish]:
+            if square<0 or square>7:
+                return False
+        xDiff,yDiff=xStart-xFinish,yStart-yFinish
+        
+        foundMove=False
+        for moveTest in self.possibleMoves[piece.lower()]:
+            if [moveTest[1],moveTest[2]]==[xDiff,yDiff]:
+                move=moveTest
+                foundMove=True
+                break
+        if not foundMove:
             return False
-    
-    
-    def moveAllowed(self,xStart,xFinish,yStart,yFinish,move):
+        
         functionAnswers=[]
         for condition in move[0].split("+"):
             condition=condition.split("/")
-            toExec=condition[0]+"(xStart,xFinish,yStart,yFinish"
+            toExec="self."+condition[0]+"(xStart,xFinish,yStart,yFinish"
             try: toExec+=condition[1]+")"
             except: toExec+=")"
             functionAnswers.append(exec(toExec))
         if False in functionAnswers:
             return False
-        else:
-            return True
+        return True
     
-    def movePiece(self,move):
-        self.start,self.finish=move[:2],move[2:]
-        self.xStart,self.yStart=self.chessToList(start)
-        self.xFinish,self.yFinish=self.chessToList(finish)
+    def movePiece(self):
+        print()
+        for ligne in self.chessboard:
+            print("".join(ligne))
+        print()
         move=input("Move : ") # To implement in a better way
-        if moveAllowed(move):
-            self.chessboard[xFinish][yFinish]=self.chessboard[xStart][yStart]
+        start,finish=move[:2],move[2:]
+        xStart,yStart=self.chessToList(start)
+        xFinish,yFinish=self.chessToList(finish)
+        piece=self.chessboard[xStart][yStart]
+        if self.moveAllowed(xStart,xFinish,yStart,yFinish,piece):
+            self.chessboard[xFinish][yFinish]=piece
             self.chessboard[xStart][yStart]="."
+
+while True:
+    chessboard.movePiece()

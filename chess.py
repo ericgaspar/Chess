@@ -35,7 +35,7 @@ class Chessboard:
                             return False
         return True
     
-    def notTeammate(self,_,__xFinish,yFinish):
+    def notTeammate(self,_,__,xFinish,yFinish):
         square=self.chessboard[xFinish][yFinish]
         if (square.isupper() and self.turn=="white") or (square.islower() and self.turn=="black"):
             return False

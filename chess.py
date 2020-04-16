@@ -5,7 +5,7 @@ class Chessboard:
                          [".",".",".",".",".",".",".","."],
                          [".",".",".",".",".",".",".","."],
                          [".",".",".",".",".",".",".","."],
-                         [".",".",".",".","P",".",".","."],
+                         [".",".",".",".",".",".",".","."],
                          ["P","P","P","P","P","P","P","P"],
                          ["R","N","B","Q","K","B","N","R"]]
         self.turn="white"
@@ -14,8 +14,8 @@ class Chessboard:
                              "q":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if (x==y or x==0 or y==0) and [x,y]!=[0,0]],
                              "r":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if (x==0 or y==0) and [x,y]!=[0,0]], # castling to implement
                              "b":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if x==y!=0],
-                             "k":[["notTeammate",x,y] for [x,y] in [[-2,-1],[-2,1],[-1,2],[1,2],[2,1],[2,-1],[1,-2],[-1,-2]]],
-                             "p":[["notTeammate",-1,0],["noPieceBetween+onRow/2",-2,0],["enemyOnly",-1,-1],["enemyOnly",-1,1]]} # add support for black pawns
+                             "n":[["notTeammate",x,y] for [x,y] in [[-2,-1],[-2,1],[-1,2],[1,2],[2,1],[2,-1],[1,-2],[-1,-2]]],
+                             "p":[["notTeammate",-1,0],["notTeammate+noPieceBetween+onRow/2",-2,0],["enemyOnly",-1,-1],["enemyOnly",-1,1]]} # add support for black pawns
     
     
     def chessToList(self,coord):
@@ -85,7 +85,7 @@ class Chessboard:
             if square<0 or square>7:
                 return False
         xDiff,yDiff=xFinish-xStart,yFinish-yStart
-        
+
         foundMove=False
         for moveTest in self.possibleMoves[piece.lower()]:
             if [moveTest[1],moveTest[2]]==[xDiff,yDiff]:
@@ -98,11 +98,12 @@ class Chessboard:
         functionAnswers=[]
         for condition in move[0].split("+"):
             condition=condition.split("/")
-            toExec="self."+condition[0]+"(xStart,xFinish,yStart,yFinish"
+            toExec="self."+condition[0]+"(xStart,yStart,xFinish,yFinish"
             try: toExec+=","+condition[1]+")"
             except: toExec+=")"
             functionAnswers.append(eval(toExec))
         if False in functionAnswers:
+            print("Warning, your move isn't correct!")
             return False
         return True
     

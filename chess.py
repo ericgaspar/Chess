@@ -5,7 +5,7 @@ class Chessboard:
                          [".",".",".",".",".",".",".","."],
                          [".",".",".",".",".",".",".","."],
                          [".",".",".",".",".",".",".","."],
-                         [".",".",".",".",".",".",".","."],
+                         [".",".",".",".","Q",".",".","."],
                          ["P","P","P","P","P","P","P","P"],
                          ["R","N","B","Q","K","B","N","R"]]
         self.turn="white"
@@ -86,7 +86,7 @@ class Chessboard:
         for square in [xStart,xFinish,yStart,yFinish]:
             if square<0 or square>7:
                 return False
-        xDiff,yDiff=xStart-xFinish,yStart-yFinish
+        xDiff,yDiff=xFinish-xStart,yFinish-yStart
         
         foundMove=False
         for moveTest in self.possibleMoves[piece.lower()]:
@@ -101,7 +101,7 @@ class Chessboard:
         for condition in move[0].split("+"):
             condition=condition.split("/")
             toExec="self."+condition[0]+"(xStart,xFinish,yStart,yFinish"
-            try: toExec+=condition[1]+")"
+            try: toExec+=","+condition[1]+")"
             except: toExec+=")"
             functionAnswers.append(exec(toExec))
         if False in functionAnswers:

@@ -5,7 +5,7 @@ class Chessboard:
                          [".",".",".",".",".",".",".","."],
                          [".",".",".",".",".",".",".","."],
                          [".",".",".",".",".",".",".","."],
-                         [".",".",".",".","Q",".",".","."],
+                         [".",".",".",".","P",".",".","."],
                          ["P","P","P","P","P","P","P","P"],
                          ["R","N","B","Q","K","B","N","R"]]
         self.turn="white"
@@ -47,10 +47,9 @@ class Chessboard:
                 return True
             elif yFinish<yStart and self.chessboard[xStart][yFinish+1:yStart]==["."]*(yStart-yFinish+1):
                 return True
-            else:
-                return False
+            return False
         elif yStart==yFinish: # vertical
-            if xStart>xFinish:
+            if xStart<xFinish:
                 squareStripe=range(xStart+1,xFinish)
             else:
                 squareStripe=range(xFinish+1,xStart)
@@ -69,7 +68,6 @@ class Chessboard:
                         return False
             return True
     
-    
     def enemyOnly(self,_,__,xFinish,yFinish):
         square=self.chessboard[xFinish][yFinish]
         if (square.isupper() and self.turn=="black") or (square.islower() and self.turn=="white"):
@@ -77,13 +75,13 @@ class Chessboard:
         return False
     
     def onRow(self,xStart,yStart,_,__,nRow):
-        if xStart==nRow:
+        if 8-xStart==nRow:
             return True
         return False
     
     
-    def moveAllowed(self,xStart,xFinish,yStart,yFinish,piece):
-        for square in [xStart,xFinish,yStart,yFinish]:
+    def moveAllowed(self,xStart,yStart,xFinish,yFinish,piece):
+        for square in [xStart,yStart,xFinish,yFinish]:
             if square<0 or square>7:
                 return False
         xDiff,yDiff=xFinish-xStart,yFinish-yStart
@@ -103,7 +101,7 @@ class Chessboard:
             toExec="self."+condition[0]+"(xStart,xFinish,yStart,yFinish"
             try: toExec+=","+condition[1]+")"
             except: toExec+=")"
-            functionAnswers.append(exec(toExec))
+            functionAnswers.append(eval(toExec))
         if False in functionAnswers:
             return False
         return True
@@ -118,7 +116,7 @@ class Chessboard:
         xStart,yStart=self.chessToList(start)
         xFinish,yFinish=self.chessToList(finish)
         piece=self.chessboard[xStart][yStart]
-        if self.moveAllowed(xStart,xFinish,yStart,yFinish,piece):
+        if self.moveAllowed(xStart,yStart,xFinish,yFinish,piece):
             self.chessboard[xFinish][yFinish]=piece
             self.chessboard[xStart][yStart]="."
 

@@ -8,20 +8,20 @@ chessboard=[["r","n","b","q","k","b","n","r"],
             ["R","N","B","Q","K","B","N","R"]]
 turn="white"
 end=False
-possibleMoves={"k":[["noCheck",x,y] for x in range(-1,2) for y in range(-1,2) if [x,y]!=[0,0]], # castling to implement
+possibleMoves={"k":[["noCheck",x,y] for x in range(-1,2) for y in range(-1,2) if [x,y]!=[0,0]]+[["canCastle/kingside",0,2],["canCastle/queenside",0,-2]],
                "q":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if (x==y or x==0 or y==0) and [x,y]!=[0,0]],
-               "r":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if (x==0 or y==0) and [x,y]!=[0,0]], # castling to implement
+               "r":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if (x==0 or y==0) and [x,y]!=[0,0]],
                "b":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if x==y!=0],
                "n":[["notTeammate",x,y] for [x,y] in [[-2,-1],[-2,1],[-1,2],[1,2],[2,1],[2,-1],[1,-2],[-1,-2]]],
-               "p":[["notTeammate",-1,0],["notTeammate+noPieceBetween+onRow/2",-2,0],["enemyOnly",-1,-1],["enemyOnly",-1,1]]}
-    
-    
+               "p":[["notTeammate+isWhite",-1,0],["notTeammate+noPieceBetween+onRow/2+isWhite",-2,0],["enemyOrEnPassant+isWhite",-1,-1],["enemyOrEnPassant+isWhite",-1,1],
+                    ["notTeammate+isBlack",1,0],["notTeammate+noPieceBetween+onRow/2+isBlack",2,0],["enemyOrEnPassant+isBlack",1,-1],["enemyOrEnPassant+isBlack",1,1]]}
+
 def chessToList(coord):
     x=8-int(coord[1])
     y=ord(coord[0])-97
     return x,y
-    
-    
+
+
 def noCheck(xStart,yStart,_,__):
     global chessboard,possibleMoves
     check=False
@@ -33,14 +33,14 @@ def noCheck(xStart,yStart,_,__):
                     if moveAllowed(move) and x+move[1]==xStart and y+move[2]==yStart:
                         return False
     return True
-    
+
 def notTeammate(_,__,xFinish,yFinish):
     global chessboard,turn
     square=chessboard[xFinish][yFinish]
     if (square.isupper() and turn=="white") or (square.islower() and turn=="black"):
         return False
     return True
-    
+
 def noPieceBetween(xStart,yStart,xFinish,yFinish):
     global chessboard
     if xStart==xFinish: # horizontal
@@ -68,20 +68,35 @@ def noPieceBetween(xStart,yStart,xFinish,yFinish):
                 if chessboard[xStart+diff][yStart+diff]!=".":
                     return False
         return True
-    
-def enemyOnly(_,__,xFinish,yFinish):
+
+def enemyOrEnPassant(_,__,xFinish,yFinish):
     global chessboard,turn
     square=chessboard[xFinish][yFinish]
     if (square.isupper() and turn=="black") or (square.islower() and turn=="white"):
         return True
     return False
-    
+
 def onRow(xStart,yStart,_,__,nRow):
     if 8-xStart==nRow:
         return True
     return False
-    
-    
+
+def isWhite(xStart,yStart,_,__):
+    global chessboard
+    if chessboard[xStart][yStart].isupper():
+        return True
+    return False
+
+def isBlack(xStart,yStart,_,__):
+    global chessboard
+    if chessboard[xStart][yStart].islower():
+        return True
+    return False
+
+def canCastle(xStart,yStart,_,__,side):
+    return False
+
+
 def moveAllowed(xStart,yStart,xFinish,yFinish,piece):
     global turn
     warning="Warning, your move isn't correct!"
@@ -93,7 +108,7 @@ def moveAllowed(xStart,yStart,xFinish,yFinish,piece):
             print(warning)
             return False
     xDiff,yDiff=xFinish-xStart,yFinish-yStart
-
+    
     foundMove=False
     for moveTest in possibleMoves[piece.lower()]:
         if [moveTest[1],moveTest[2]]==[xDiff,yDiff]:
@@ -103,7 +118,7 @@ def moveAllowed(xStart,yStart,xFinish,yFinish,piece):
     if not foundMove:
         print(warning)
         return False
-        
+      
     functionAnswers=[]
     for condition in move[0].split("+"):
         condition=condition.split("/")
@@ -115,19 +130,18 @@ def moveAllowed(xStart,yStart,xFinish,yFinish,piece):
         print(warning)
         return False
     return True
-    
+
 def movePiece():
     global chessboard,turn
     print()
     for ligne in chessboard:
         print("".join(ligne))
     print()
-    move=input("Move : ") # To implement in a better way
+    move=input("Move : ")
     start,finish=move[:2],move[2:]
     xStart,yStart=chessToList(start)
     xFinish,yFinish=chessToList(finish)
     piece=chessboard[xStart][yStart]
-    print(piece)
     if moveAllowed(xStart,yStart,xFinish,yFinish,piece):
         chessboard[xFinish][yFinish]=piece
         chessboard[xStart][yStart]="."

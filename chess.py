@@ -23,6 +23,7 @@ def chessToList(coord):
     
     
 def noCheck(xStart,yStart,_,__):
+    global chessboard,possibleMoves
     check=False
     for x in range(8):
         for y in range(8):
@@ -34,12 +35,14 @@ def noCheck(xStart,yStart,_,__):
     return True
     
 def notTeammate(_,__,xFinish,yFinish):
+    global chessboard,turn
     square=chessboard[xFinish][yFinish]
     if (square.isupper() and turn=="white") or (square.islower() and turn=="black"):
         return False
     return True
     
 def noPieceBetween(xStart,yStart,xFinish,yFinish):
+    global chessboard
     if xStart==xFinish: # horizontal
         if yStart<yFinish and chessboard[xStart][yStart+1:yFinish]==["."]*(yFinish-yStart+1):
             return True
@@ -67,6 +70,7 @@ def noPieceBetween(xStart,yStart,xFinish,yFinish):
         return True
     
 def enemyOnly(_,__,xFinish,yFinish):
+    global chessboard,turn
     square=chessboard[xFinish][yFinish]
     if (square.isupper() and turn=="black") or (square.islower() and turn=="white"):
         return True
@@ -79,6 +83,7 @@ def onRow(xStart,yStart,_,__,nRow):
     
     
 def moveAllowed(xStart,yStart,xFinish,yFinish,piece):
+    global turn
     warning="Warning, your move isn't correct!"
     if (piece.isupper() and turn=="black") or (piece.islower() and turn=="white"):
         print(warning)
@@ -112,6 +117,7 @@ def moveAllowed(xStart,yStart,xFinish,yFinish,piece):
     return True
     
 def movePiece():
+    global chessboard,turn
     print()
     for ligne in chessboard:
         print("".join(ligne))

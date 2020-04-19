@@ -14,7 +14,7 @@ possibleMoves={"k":[["noCheck",x,y] for x in range(-1,2) for y in range(-1,2) if
                "b":[["notTeammate+noPieceBetween",x,y] for x in range(-7,8) for y in range(-7,8) if x==y!=0],
                "n":[["notTeammate",x,y] for [x,y] in [[-2,-1],[-2,1],[-1,2],[1,2],[2,1],[2,-1],[1,-2],[-1,-2]]],
                "p":[["notTeammate+isWhite",-1,0],["notTeammate+noPieceBetween+onRow/2+isWhite",-2,0],["enemyOrEnPassant+isWhite",-1,-1],["enemyOrEnPassant+isWhite",-1,1],
-                    ["notTeammate+isBlack",1,0],["notTeammate+noPieceBetween+onRow/2+isBlack",2,0],["enemyOrEnPassant+isBlack",1,-1],["enemyOrEnPassant+isBlack",1,1]]}
+                    ["notTeammate+isBlack",1,0],["notTeammate+noPieceBetween+onRow/7+isBlack",2,0],["enemyOrEnPassant+isBlack",1,-1],["enemyOrEnPassant+isBlack",1,1]]}
 
 def chessToList(coord):
     x=8-int(coord[1])

@@ -107,24 +107,20 @@ def canCastle(xStart, yStart, _, __, side):
 
 def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
     global turn
-    warning = "Warning, your move isn't correct!"
     if (piece.isupper() and turn == "black") or (piece.islower() and turn == "white"):
-        print(warning)
         return False
     for square in [xStart, yStart, xFinish, yFinish]:
         if square < 0 or square > 7:
-            print(warning)
             return False
     xDiff, yDiff = xFinish - xStart, yFinish - yStart
 
     foundMove = False
     for moveTest in possibleMoves[piece.lower()]:
-        if [moveTest[1], moveTest[2]] == [xDiff, yDiff]:
+        if moveTest[1] == xDiff and moveTest[2] == yDiff:
             move = moveTest
             foundMove = True
             break
     if not foundMove:
-        print(warning)
         return False
 
     functionAnswers = []
@@ -137,7 +133,6 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
             toExec += ")"
         functionAnswers.append(eval(toExec))
     if False in functionAnswers:
-        print(warning)
         return False
     return True
 
@@ -158,3 +153,5 @@ while True:
             turn = "black"
         else:
             turn = "white"
+    else:
+        print("Your move isn't correct!")

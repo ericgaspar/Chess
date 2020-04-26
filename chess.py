@@ -4,7 +4,7 @@ chessboard = [["r", "n", "b", "q", "k", "b", "n", "r"],
               [".", ".", ".", ".", ".", ".", ".", "."],
               [".", ".", ".", ".", ".", ".", ".", "."],
               [".", ".", ".", ".", ".", ".", ".", "."],
-              ["P", "P", "P", "P", "P", "P", "P", "P"],
+              ["R", "P", "P", "P", "P", "P", "P", "P"],
               ["R", "N", "B", "Q", "K", "B", "N", "R"]]
 turn = "white"
 end = False
@@ -47,9 +47,9 @@ def notTeammate(_, __, xFinish, yFinish):
 def noPieceBetween(xStart, yStart, xFinish, yFinish):
     global chessboard
     if xStart == xFinish:  # horizontal
-        if yStart < yFinish and chessboard[xStart][yStart + 1:yFinish] == ["."] * (yFinish - yStart + 1):
+        if yStart < yFinish and chessboard[xStart][yStart + 1:yFinish] == ["."] * (yFinish - yStart - 1):
             return True
-        elif yFinish < yStart and chessboard[xStart][yFinish + 1:yStart] == ["."] * (yStart - yFinish + 1):
+        elif yFinish < yStart and chessboard[xStart][yFinish + 1:yStart] == ["."] * (yStart - yFinish - 1):
             return True
         return False
     elif yStart == yFinish:  # vertical
@@ -63,11 +63,11 @@ def noPieceBetween(xStart, yStart, xFinish, yFinish):
         return True
     else:  # diagonal
         if xStart > xFinish:
-            for diff in range(xStart - xFinish + 1):
+            for diff in range(xStart - xFinish - 1):
                 if chessboard[xFinish + diff][yFinish + diff] != ".":
                     return False
         else:
-            for diff in range(xFinish - xStart + 1):
+            for diff in range(xFinish - xStart - 1):
                 if chessboard[xStart + diff][yStart + diff] != ".":
                     return False
         return True
@@ -141,9 +141,7 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
         return False
     return True
 
-
-def movePiece():
-    global chessboard, turn
+while True:
     print()
     for ligne in chessboard:
         print("".join(ligne))
@@ -160,6 +158,3 @@ def movePiece():
             turn = "black"
         else:
             turn = "white"
-
-while True:
-    movePiece()

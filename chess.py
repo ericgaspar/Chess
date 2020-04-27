@@ -11,7 +11,7 @@ end = False
 possibleMoves = {"k": [["noCheck", x, y] for x in range(-1, 2) for y in range(-1, 2) if [x, y] != [0, 0]] + [["canCastle/kingside", 0, 2], ["canCastle/queenside", 0, -2]],
                  "q": [["notTeammate+noPieceBetween", x, y] for x in range(-7, 8) for y in range(-7, 8) if (x == y or x == 0 or y == 0) and [x, y] != [0, 0]],
                  "r": [["notTeammate+noPieceBetween", x, y] for x in range(-7, 8) for y in range(-7, 8) if (x == 0 or y == 0) and [x, y] != [0, 0]],
-                 "b": [["notTeammate+noPieceBetween", x, y] for x in range(-7, 8) for y in range(-7, 8) if x == y != 0],
+                 "b": [["notTeammate+noPieceBetween", x, y] for x in range(-7, 8) for y in range(-7, 8) if abs(x) == abs(y) != 0],
                  "n": [["notTeammate", x, y] for [x, y] in [[-2, -1], [-2, 1], [-1, 2], [1, 2], [2, 1], [2, -1], [1, -2], [-1, -2]]],
                  "p": [["notTeammate+isWhite", -1, 0], ["notTeammate+noPieceBetween+onRow/2+isWhite", -2, 0], ["enemyOrEnPassant+isWhite", -1, -1], ["enemyOrEnPassant+isWhite", -1, 1],
                        ["notTeammate+isBlack", 1, 0], ["notTeammate+noPieceBetween+onRow/7+isBlack", 2, 0], ["enemyOrEnPassant+isBlack", 1, -1], ["enemyOrEnPassant+isBlack", 1, 1]]}
@@ -52,6 +52,7 @@ def noPieceBetween(xStart, yStart, xFinish, yFinish):
         elif yFinish < yStart and chessboard[xStart][yFinish + 1:yStart] == ["."] * (yStart - yFinish - 1):
             return True
         return False
+    
     elif yStart == yFinish:  # vertical
         if xStart < xFinish:
             squareStripe = range(xStart + 1, xFinish)
@@ -61,15 +62,19 @@ def noPieceBetween(xStart, yStart, xFinish, yFinish):
             if chessboard[x][yStart] != ".":
                 return False
         return True
-    else:  # diagonal
+    
+    else:
         if xStart > xFinish:
-            for diff in range(xStart - xFinish - 1):
-                if chessboard[xFinish + diff][yFinish + diff] != ".":
-                    return False
+            xSmallest = xFinish
         else:
-            for diff in range(xFinish - xStart - 1):
-                if chessboard[xStart + diff][yStart + diff] != ".":
-                    return False
+            xSmallest = xStart
+        if yStart > yFinish:
+            ySmallest = yFinish
+        else:
+            ySmallest = yStart
+        for diff in range(1, abs(xStart - xFinish)):
+            if chessboard[xSmallest + diff][ySmallest + diff] != ".":
+                return False
         return True
 
 
@@ -113,7 +118,7 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
         if square < 0 or square > 7:
             return False
     xDiff, yDiff = xFinish - xStart, yFinish - yStart
-
+    
     foundMove = False
     for moveTest in possibleMoves[piece.lower()]:
         if moveTest[1] == xDiff and moveTest[2] == yDiff:
@@ -122,7 +127,7 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
             break
     if not foundMove:
         return False
-
+    
     functionAnswers = []
     for condition in move[0].split("+"):
         condition = condition.split("/")

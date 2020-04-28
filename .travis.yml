@@ -1,8 +1,18 @@
-dist: bionic
+dist:
+  - bionic
+
 arch:
   - amd64
+
 language: python
+
 python:
-    - "3.8"
+  - "3.6"
+  - "3.8"
+
+install:
+  pip install -e .
+
 script:
-    python chess.py < testing.txt
+  - pytest
+  - python chess.py < testing.txt

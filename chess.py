@@ -107,9 +107,9 @@ def canCastle(xStart, yStart, _, __, side):
     return False
 
 
-def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
+def moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
     global turn
-    if (piece.isupper() and turn == "black") or (piece.islower() and turn == "white"):
+    if (pieceMoving.isupper() and turn == "black") or (pieceMoving.islower() and turn == "white"):
         return False
     for coord in [xStart, yStart, xFinish, yFinish]:
         if coord < 0 or coord > 7:
@@ -119,7 +119,7 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
     
     xDiff, yDiff = xFinish - xStart, yFinish - yStart
     foundMove = False
-    for moveTest in possibleMoves[piece.lower()]:
+    for moveTest in possibleMoves[pieceMoving.lower()]:
         if moveTest[1] == xDiff and moveTest[2] == yDiff:
             move = moveTest
             foundMove = True
@@ -138,8 +138,31 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, piece):
         functionAnswers.append(eval(toExec))
     if False in functionAnswers:
         return False
+    
+    makeMove(xStart, yStart, xFinish, yFinish, pieceMoving)
+    if check(whiteKing[0], whiteKing[1]) and turn=="black":
+        whiteKingCheck=True
+    elif check(blackKing[0], blackKing[1]) and turn=="white":
+        blackKingCheck=True
+    elif (check(whiteKing[0], whiteKing[1]) and turn=="white") or (check(blackKing[0], blackKing[1]) and turn=="black"):
+        wrong=True
+    undoMove(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten)
+    if wrong:
+        return False
+    
+    if (pieceMoving!="R" and whiteKingCheck) or (pieceMoving!="r" and blackKingCheck):
+        return False
+    
     return True
 
+def makeMove(xStart, yStart, xFinish, yFinish, pieceMoving):
+    board[xStart][yStart] = "."
+    board[xFinish][yFinish] = pieceMoving
+
+def undoMove(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
+    board[xStart][yStart] = pieceMoving
+    board[xFinish][yFinish] = pieceEaten
+    
 
 while True:
     print()
@@ -150,10 +173,10 @@ while True:
     start, finish = move[:2], move[2:]
     xStart, yStart = chessToList(start)
     xFinish, yFinish = chessToList(finish)
-    piece = board[xStart][yStart]
-    if moveAllowed(xStart, yStart, xFinish, yFinish, piece):
-        board[xFinish][yFinish] = piece
-        board[xStart][yStart] = "."
+    pieceMoving = board[xStart][yStart]
+    pieceEaten = board[xFinish][yFinish]
+    if moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
+        makeMove(xStart, yStart, xFinish, yFinish, pieceMoving)
         if turn == "white":
             turn = "black"
         else:

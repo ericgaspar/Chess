@@ -15,8 +15,10 @@ possibleMoves = {"k": [["noCheck", x, y] for x in range(-1, 2) for y in range(-1
                  "n": [["notTeammate", x, y] for [x, y] in [[-2, -1], [-2, 1], [-1, 2], [1, 2], [2, 1], [2, -1], [1, -2], [-1, -2]]],
                  "p": [["notTeammate+isWhite", -1, 0], ["notTeammate+noPieceBetween+onRow/2+isWhite", -2, 0], ["enemyOrEnPassant+isWhite", -1, -1], ["enemyOrEnPassant+isWhite", -1, 1],
                        ["notTeammate+isBlack", 1, 0], ["notTeammate+noPieceBetween+onRow/7+isBlack", 2, 0], ["enemyOrEnPassant+isBlack", 1, -1], ["enemyOrEnPassant+isBlack", 1, 1]]}
+
 whiteKing = [7, 4]
 blackKing = [0, 4]
+whiteKingCheck, blackKingCheck = False, False
 
 def chessToList(coord):
     x = 8 - int(coord[1])
@@ -30,12 +32,13 @@ def noCheck(_, __, xKing, yKing):
 def isCheck(xKing, yKing):
     global board, possibleMoves
     check = False
+    king = board[xKing][yKing]
     for x in range(8):
         for y in range(8):
             square = board[x][y]
-            if square != ".":
+            if (king.islower() and square.isupper()) or (king.isupper() and square.islower()):
                 for move in possibleMoves[square.lower()]:
-                    if moveAllowed(x, y, xKing, yKing, square) and x + move[1] == xKing and y + move[2] == yKing:
+                    if moveAllowed(x, y, xKing, yKing, square, king) and x + move[1] == xKing and y + move[2] == yKing:
                         return True
     return False
 
@@ -108,7 +111,7 @@ def canCastle(xStart, yStart, _, __, side):
 
 
 def moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
-    global turn
+    global turn, whiteKingCheck, blackKingCheck
     if (pieceMoving.isupper() and turn == "black") or (pieceMoving.islower() and turn == "white"):
         return False
     for coord in [xStart, yStart, xFinish, yFinish]:
@@ -139,18 +142,19 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
     if False in functionAnswers:
         return False
     
+    wrong=False
     makeMove(xStart, yStart, xFinish, yFinish, pieceMoving)
-    if check(whiteKing[0], whiteKing[1]) and turn=="black":
+    if isCheck(whiteKing[0], whiteKing[1]) and turn=="black":
         whiteKingCheck=True
-    elif check(blackKing[0], blackKing[1]) and turn=="white":
+    elif isCheck(blackKing[0], blackKing[1]) and turn=="white":
         blackKingCheck=True
-    elif (check(whiteKing[0], whiteKing[1]) and turn=="white") or (check(blackKing[0], blackKing[1]) and turn=="black"):
+    elif isCheck(whiteKing[0], whiteKing[1]) and turn=="white" or isCheck(blackKing[0], blackKing[1]) and turn=="black":
         wrong=True
     undoMove(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten)
     if wrong:
         return False
     
-    if (pieceMoving!="R" and whiteKingCheck) or (pieceMoving!="r" and blackKingCheck):
+    if pieceMoving!="R" and whiteKingCheck or pieceMoving!="r" and blackKingCheck:
         return False
     
     return True

@@ -1,11 +1,11 @@
 board = [["r", "n", "b", "q", "k", "b", "n", "r"],
          ["p", "p", "p", "p", "p", "p", "p", "p"],
-         [".", ".", ".", "r", ".", ".", ".", "."],
-         [".", ".", ".", ".", "K", ".", ".", "."],
+         [".", ".", ".", ".", ".", ".", ".", "."],
+         [".", ".", ".", ".", ".", ".", ".", "."],
          [".", ".", ".", ".", ".", ".", ".", "."],
          [".", ".", ".", ".", ".", ".", ".", "."],
          ["P", "P", "P", "P", "P", "P", "P", "P"],
-         ["R", "N", "B", "Q", ".", "B", "N", "R"]]
+         ["R", "N", "B", "Q", "K", "B", "N", "R"]]
 turn = "white"
 end = False
 possibleMoves = {"k": [["notTeammate", x, y] for x in range(-1, 2) for y in range(-1, 2) if [x, y] != [0, 0]] + [["canCastle/kingside", 0, 2], ["canCastle/queenside", 0, -2]],
@@ -16,7 +16,7 @@ possibleMoves = {"k": [["notTeammate", x, y] for x in range(-1, 2) for y in rang
                  "p": [["notTeammate+isWhite", -1, 0], ["notTeammate+noPieceBetween+onRow/2+isWhite", -2, 0], ["enemyOrEnPassant+isWhite", -1, -1], ["enemyOrEnPassant+isWhite", -1, 1],
                        ["notTeammate+isBlack", 1, 0], ["notTeammate+noPieceBetween+onRow/7+isBlack", 2, 0], ["enemyOrEnPassant+isBlack", 1, -1], ["enemyOrEnPassant+isBlack", 1, 1]]}
 
-whiteKing = [3, 4]
+whiteKing = [7, 4]
 blackKing = [0, 4]
 whiteKingCheck, blackKingCheck = False, False
 

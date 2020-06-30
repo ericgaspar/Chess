@@ -1,11 +1,11 @@
 board = [["r", "n", "b", "q", "k", "b", "n", "r"],
          ["p", "p", "p", "p", "p", "p", "p", "p"],
          [".", ".", ".", "r", ".", ".", ".", "."],
-         [".", ".", ".", ".", ".", ".", ".", "."],
          [".", ".", ".", ".", "K", ".", ".", "."],
          [".", ".", ".", ".", ".", ".", ".", "."],
+         [".", ".", ".", ".", ".", ".", ".", "."],
          ["P", "P", "P", "P", "P", "P", "P", "P"],
-         ["R", "N", "B", "Q", "K", "B", "N", "R"]]
+         ["R", "N", "B", "Q", ".", "B", "N", "R"]]
 turn = "white"
 end = False
 possibleMoves = {"k": [["notTeammate", x, y] for x in range(-1, 2) for y in range(-1, 2) if [x, y] != [0, 0]] + [["canCastle/kingside", 0, 2], ["canCastle/queenside", 0, -2]],
@@ -16,7 +16,7 @@ possibleMoves = {"k": [["notTeammate", x, y] for x in range(-1, 2) for y in rang
                  "p": [["notTeammate+isWhite", -1, 0], ["notTeammate+noPieceBetween+onRow/2+isWhite", -2, 0], ["enemyOrEnPassant+isWhite", -1, -1], ["enemyOrEnPassant+isWhite", -1, 1],
                        ["notTeammate+isBlack", 1, 0], ["notTeammate+noPieceBetween+onRow/7+isBlack", 2, 0], ["enemyOrEnPassant+isBlack", 1, -1], ["enemyOrEnPassant+isBlack", 1, 1]]}
 
-whiteKing = [4, 4]
+whiteKing = [3, 4]
 blackKing = [0, 4]
 whiteKingCheck, blackKingCheck = False, False
 
@@ -33,7 +33,7 @@ def isCheck(xKing, yKing, color):
     for x in range(8):
         for y in range(8):
             square = board[x][y]
-            if (color=="black" and square.isupper()) or (color=="white" and square.islower()):
+            if (color == "black" and square.isupper()) or (color == "white" and square.islower()):
                 if moveAllowed(x, y, xKing, yKing, square, king):
                     return True
     return False
@@ -102,13 +102,11 @@ def canCastle(xStart, yStart, _, __, side):
 
 def moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
     global turn, whiteKing, blackKing, whiteKingCheck, blackKingCheck
-    if (pieceMoving.isupper() and turn == "black") or (pieceMoving.islower() and turn == "white"):
+    if pieceMoving == "." or (pieceMoving.isupper() and turn == "black") or (pieceMoving.islower() and turn == "white"):
         return False
     for coord in [xStart, yStart, xFinish, yFinish]:
         if coord < 0 or coord > 7:
             return False
-    if pieceMoving == ".":
-        return False
     
     xDiff, yDiff = xFinish - xStart, yFinish - yStart
     foundMove = False
@@ -128,25 +126,24 @@ def moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
             toExec += "," + condition[1] + ")"
         except:
             toExec += ")"
-        print(toExec)
         functionAnswers.append(eval(toExec))
     if False in functionAnswers:
         return False
     
+    if (whiteKingCheck and pieceMoving) != "K" or (blackKingCheck and pieceMoving != "k"):
+        return False
+    
     wrong=False
     makeMove(xStart, yStart, xFinish, yFinish, pieceMoving)
-    if isCheck(whiteKing[0], whiteKing[1], "white") and turn=="black":
-        whiteKingCheck=True
-    elif isCheck(blackKing[0], blackKing[1], "black") and turn=="white":
-        blackKingCheck=True
-    elif isCheck(whiteKing[0], whiteKing[1], "white") and turn=="white" or isCheck(blackKing[0], blackKing[1], "black") and turn=="black":
-        wrong=True
+    if isCheck(whiteKing[0], whiteKing[1], "white") and turn == "white":
+        whiteKingCheck = True
+    elif isCheck(blackKing[0], blackKing[1], "black") and turn == "black":
+        blackKingCheck = True
+    elif isCheck(whiteKing[0], whiteKing[1], "white") and turn == "black" or isCheck(blackKing[0], blackKing[1], "black") and turn == "black":
+        wrong = True
     undoMove(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten)
-    if wrong:
-        return False
-    if turn == "white" and whiteKingCheck or turn == "black" and blackKingCheck:
-        return False
-
+    if wrong: return False
+    
     return True
 
 def makeMove(xStart, yStart, xFinish, yFinish, pieceMoving):
@@ -157,6 +154,7 @@ def makeMove(xStart, yStart, xFinish, yFinish, pieceMoving):
         whiteKing = [xFinish, yFinish]
     elif pieceMoving == "k":
         blackKing = [xFinish, yFinish]
+    changeTurn()
 
 def undoMove(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
     global whiteKing, blackKing
@@ -166,7 +164,15 @@ def undoMove(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
         whiteKing = [xStart, yStart]
     elif pieceMoving == "k":
         blackKing = [xStart, yStart]
-    
+    changeTurn()
+
+def changeTurn():
+    global turn
+    if turn == "white":
+        turn = "black"
+    else:
+        turn = "white"
+
 
 while True:
     print()
@@ -181,9 +187,6 @@ while True:
     pieceEaten = board[xFinish][yFinish]
     if moveAllowed(xStart, yStart, xFinish, yFinish, pieceMoving, pieceEaten):
         makeMove(xStart, yStart, xFinish, yFinish, pieceMoving)
-        if turn == "white":
-            turn = "black"
-        else:
-            turn = "white"
+        changeTurn()
     else:
         print("Your move isn't correct!")
